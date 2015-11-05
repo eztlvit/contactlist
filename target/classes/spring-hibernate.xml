@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        ">
+
+    <!-- Hibernate4 -->
+    <!-- 加载资源文件  其中包含变量信息，必须在Spring配置文件的最前面加载，即第一个加载-->
+    <context:property-placeholder location="classpath:*.properties" />
+    <!-- <context:property-placeholder location="classpath:persistence-mysql.properties" /> -->
+    
+    <!-- <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">  
+        <property name="maxIdle" value="${redis.maxIdle}" />  
+        <property name="maxTotal" value="${redis.maxActive}" />  
+        <property name="maxWaitMillis" value="${redis.maxWait}" />  
+        <property name="testOnBorrow" value="${redis.testOnBorrow}" />  
+    </bean>
+    
+     <bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" 
+        p:host-name="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}"  p:pool-config-ref="poolConfig"/>
+     
+     <bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate" > 
+        <property name="connectionFactory"   ref="connectionFactory" />  
+    </bean>  --> 
+          
+    <bean id="sessionFactory" 
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="c3p0DataSource" />
+        <property name="packagesToScan">
+            <list>
+                <!-- 可以加多个包 -->
+                <value>com.zzt.springmvc.contactlist.entity</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <!-- <prop key="hibernate.current_session_context_class">thread</prop> --> 
+            </props>
+        </property>
+    </bean>
+    
+    <!-- 数据库映射 -->
+    <!--  class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" -->
+    <!--  class="org.springframework.jdbc.datasource.DriverManagerDataSource" -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+      <property name="driverClassName" value="${jdbc.driverClassName}" />
+      <property name="url" value="${jdbc.url}" />
+      <property name="username" value="${jdbc.user}" />
+      <property name="password" value="${jdbc.pass}" />
+   	</bean>
+   
+     <!-- dbcp连接池 -->
+    <bean id="dbcpDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" lazy-init="false">  
+	    <property name="driverClassName" value="${jdbc.driverClassName}"/>  
+	    <property name="url" value="${jdbc.url}"/>  
+	    <property name="username" value="${jdbc.user}"/>  
+	    <property name="password" value="${jdbc.pass}"/>  
+	    <property name="initialSize" value="5"/>  
+	    <property name="maxActive" value="10"/>  
+	    <property name="maxWait" value="60000"/>   
+	</bean>
+	 
+	<!-- c3p0连接池 -->
+    <bean id="c3p0DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"  destroy-method="close">      
+	     <property name="driverClass" value="${jdbc.driverClassName}"/>      
+	     <property name="jdbcUrl" value="${jdbc.url}"/>      
+	     <property name="user" value="${jdbc.user}"/>      
+	     <property name="password" value="${jdbc.pass}"/>
+	     <property name="initialPoolSize" value="5"/>  
+	     <property name="maxPoolSize" value="10"/>  
+	     <property name="maxIdleTime" value="60000"/>      
+	</bean> 
+   
+    <!-- 配置Hibernate事务管理器 -->
+	<bean id="transactionManager"
+    	class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+      <property name="sessionFactory" ref="sessionFactory" />
+   </bean>
+   
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" lazy-init="false" abstract="false" autowire="default" >
+	    	<property name="dataSource">
+	    	    <ref bean="dataSource"/>
+	    	</property>
+	</bean>
+	
+   <!-- <bean id="persistenceExceptionTranslationPostProcessor" 
+   	class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+   
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config expose-proxy="true">
+		<aop:pointcut id="txPointcut" expression="execution(* com.zzt.springmvc.contactlist.service..*.*(..))" />
+        <aop:advisor pointcut-ref="txPointcut" advice-ref="txAdvice"/>
+	</aop:config> -->
+	
+</beans>
