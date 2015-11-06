@@ -31,6 +31,7 @@ public class Product implements Runnable {
 				container.notify();
 				System.out.println("我生产了" + (++count) + "个");
 				count--;
+				System.out.println("---------aaaaaa");
 			}
 		}
 
