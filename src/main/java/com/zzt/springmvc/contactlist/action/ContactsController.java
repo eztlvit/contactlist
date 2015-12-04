@@ -41,7 +41,7 @@ public class ContactsController {
 	private UserService userService;
 	
 	private List<User> userlst;
-	
+
 	private List<UserMyBatis> userMyBatisLst;
 	
 	@Resource(name="redisClientTemplate")
